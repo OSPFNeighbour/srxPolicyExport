@@ -102,23 +102,25 @@ lr.on('line', function(line) {
         policies[fromZoneToZone][policyName]['description'] = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
       } else if (lineParts[9] == "match") {
         //this could be done by using the [10] position for the key of the match like this...
-        // policies[fromZoneToZone][policyName]['match'][lineParts[10]]
-        //but then it would be harder to resolve them with source zone & dest zone
-        // on second thought lets just do it.
-        policies[fromZoneToZone][policyName]['match'][lineParts[10]].push(lineParts[11])
-        // switch (lineParts[10]) {
-        //   case "source-address":
-        //     policies[fromZoneToZone][policyName]['match']['source-address'].push(lineParts[11])
-        //     break
-        //   case "destination-address":
-        //     policies[fromZoneToZone][policyName]['match']['destination-address'].push(lineParts[11])
-        //     break
-        //   case "application":
-        //     policies[fromZoneToZone][policyName]['match']['application'].push(lineParts[11])
-        //     break
-        // }
+        //but then it might go out of bounds if theres weird stuff
+        //policies[fromZoneToZone][policyName]['match'][lineParts[10]].push(lineParts[11])
+        switch (lineParts[10]) {
+          case "source-address":
+            policies[fromZoneToZone][policyName]['match']['source-address'].push(lineParts[11])
+            break
+          case "destination-address":
+            policies[fromZoneToZone][policyName]['match']['destination-address'].push(lineParts[11])
+            break
+          case "application":
+            policies[fromZoneToZone][policyName]['match']['application'].push(lineParts[11])
+            break
+        }
       } else if (lineParts[9] == "then") {
-        policies[fromZoneToZone][policyName]['then'].push(lineParts[10])
+        if (lineParts[10] == "log") {
+          policies[fromZoneToZone][policyName]['then'].push(line.substring(line.indexOf('log'),))
+        } else {
+          policies[fromZoneToZone][policyName]['then'].push(lineParts[10]) //permit or something single worded
+        }
       } else {
         console.warn("NFI what this policy action is because its not (desc|match|then)", line)
       }
@@ -150,7 +152,7 @@ lr.on('end', function() {
   })
 
   hitslr.on('end', function() {
-      console.log('Done Reading Policy Hits File')
+    console.log('Done Reading Policy Hits File')
 
     // Because policy is before zone we now have to walk everything again to resolve the policy addressAddress. fuck you JunOS
     Object.keys(policies).forEach(function(fromZoneToZone) {
@@ -299,7 +301,7 @@ lr.on('end', function() {
 
     // This seems like a painful way to do this but google didnt give me a better answer
     // iterate over all current cells in this column and set text wrap
-    for (let column = 5; column < 10; column++) {
+    for (let column = 5; column < 12; column++) {
       outputSheet.getColumn(column).eachCell(function(cell, rowNumber) {
         cell.alignment = {
           wrapText: true
@@ -352,14 +354,14 @@ lr.on('end', function() {
       })
       // This seems like a painful way to do this but google didnt give me a better answer
       // iterate over all current cells in this sheet and set text wrap
-      for (let column = 5; column < 10; column++) {
+      for (let column = 5; column < 12; column++) {
         outputSheet.getColumn(column).eachCell(function(cell, rowNumber) {
           cell.alignment = {
             wrapText: true
           };
         });
       }
-      });
+    });
 
     var newFile = 'Policy Export #' + new Date() / 1000 + '.xlsx'
     outputworkbook.xlsx.writeFile(newFile)
