@@ -1,0 +1,18 @@
+{
+  "name": "srxPolicyExport",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"lol. tests.\" && exit 1",
+    "run-watch": "./node_modules/nodemon/bin/nodemon.js index.js",
+    "run": "node index.js"
+  },
+  "author": "Tim Dykes",
+  "license": "MIT",
+  "dependencies": {
+    "exceljs": "^3.0.0",
+    "line-by-line": "^0.1.6",
+    "nodemon": "^1.19.3"
+  }
+}
