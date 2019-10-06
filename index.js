@@ -116,8 +116,8 @@ lr.on('line', function(line) {
             break
         }
       } else if (lineParts[9] == "then") {
-        if (lineParts[10] == "log") {
-          policies[fromZoneToZone][policyName]['then'].push(line.substring(line.indexOf('log'),))
+        if (lineParts[10] == "log") { //log has  more words so just take them all
+          policies[fromZoneToZone][policyName]['then'].push(line.substring(line.indexOf('then log')+5,)) //incase the word log is in the rule name
         } else {
           policies[fromZoneToZone][policyName]['then'].push(lineParts[10]) //permit or something single worded
         }
